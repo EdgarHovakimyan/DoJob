@@ -30,13 +30,3 @@ export class CreateUserDto {
   @JoiSchema(Joi.string().required())
   phoneNumber:string
 }
-
-
-export class LoginUser{
-    @ApiProperty()
-    @JoiSchema(Joi.string().required())
-    username:string
-    @ApiProperty()
-    @JoiSchema(Joi.string().min(4).max(20).required())
-    password:string
-}

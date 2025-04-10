@@ -21,6 +21,11 @@ export class UpdateJobDto {
   skills: string[];
 }
 
+export class AddSkillDto { 
+  @ApiProperty()
+  @JoiSchema(Joi.array().items(Joi.string()))
+  skills: string[]; 
+}
 export class UpdateJobStatusDto {
   @ApiProperty()
   @JoiSchema(Joi.number().min(0).max(2))

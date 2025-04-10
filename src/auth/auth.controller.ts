@@ -11,51 +11,58 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserDto, LoginUser } from 'src/user/dto/create-user.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { HasRoles } from './has-roles.decorator';
 import { Role } from 'src/user/role/user.enum';
 import { RolesGuard } from './roles.guard';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
+import { MailService } from 'src/mail/mail.service';
+import { LoginUser } from 'src/user/dto/login-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService,private usersService: UserService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private usersService: UserService,
+    private readonly mailService: MailService
+  ) { }
+
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @Post()
-  async create(@Body() createUserDto: CreateUserDto, @Res() res:Response) {
-    try{
+  async create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+    try {
       const data = await this.usersService.create(createUserDto);
       return res.status(HttpStatus.CREATED).json(data)
-    }catch(e){
-      return res.status(HttpStatus.BAD_REQUEST).json({message:e.message})
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
     }
   }
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Request() req, @Body() login: LoginUser, @Res() res:Response) {
-    try{
+  async login(@Request() req, @Body() login: LoginUser, @Res() res: Response) {
+    try {
       const data = await this.authService.login(req.user);
       return res.status(HttpStatus.OK).json(data)
-    }catch(e){
-      return res.status(HttpStatus.BAD_REQUEST).json({message:e.message})
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
     }
   }
 
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('JWT-auth')
   @Get('profile')
-  getProfile(@Request() req, @Res() res:Response) {
-    try{
+  getProfile(@Request() req, @Res() res: Response) {
+    try {
       const data = req.user
       return res.status(HttpStatus.CREATED).json(data)
-    }catch(e){
-      return res.status(HttpStatus.BAD_REQUEST).json({message:e.message})
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
     }
   }
 
@@ -63,38 +70,38 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @Get('admin')
-  onlyAdmin(@Request() req, @Res() res:Response) {
-    try{
+  onlyAdmin(@Request() req, @Res() res: Response) {
+    try {
       const data = req.user
       return res.status(HttpStatus.CREATED).json(data)
-    }catch(e){
-      return res.status(HttpStatus.BAD_REQUEST).json({message:e.message})
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
     }
   }
-  
+
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @Get('teacher')
-  onlyTeacher(@Request() req, @Res() res:Response) {
-    try{
+  onlyTeacher(@Request() req, @Res() res: Response) {
+    try {
       const data = req.user
       return res.status(HttpStatus.CREATED).json(data)
-    }catch(e){
-      return res.status(HttpStatus.BAD_REQUEST).json({message:e.message})
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
     }
   }
-  
+
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @Get('student')
-  onlyStudent(@Request() req, @Res() res:Response) {
-    try{
+  onlyStudent(@Request() req, @Res() res: Response) {
+    try {
       const data = req.user
       return res.status(HttpStatus.CREATED).json(data)
-    }catch(e){
-      return res.status(HttpStatus.BAD_REQUEST).json({message:e.message})
+    } catch (e) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
     }
   }
 }

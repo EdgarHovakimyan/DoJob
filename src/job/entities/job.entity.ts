@@ -21,6 +21,9 @@ export class Job {
   @Prop()
   deadline: Date;
 
+  @Prop({ default: false })
+  isBlock: boolean;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Customer" })
   customer: Customer
 
