@@ -2,51 +2,91 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto, UpdateUserImgDto, UpdateUserPasswordDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserPasswordDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-
+import * as fs from 'fs';
+import * as path from 'path';
+import { Customer } from 'src/customer/entities/customer.entity';
+import { Freelancer } from 'src/freelancer/entities/freelancer.entity';
+import { Role } from './role/user.enum';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
-
-  constructor(@InjectModel("User")private userModel:Model<User>){}
+  constructor(
+    @InjectModel('User') private userModel: Model<User>,
+    @InjectModel('Customer') private customerModel: Model<Customer>,
+    @InjectModel('Freelancer') private freelancerModel: Model<Freelancer>,
+    private mailService: MailService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { first_name, last_name, age, email, password, phoneNumber, role } =
-      createUserDto;
-    const us = await this.userModel.findOne({ email });
-    if (us) {
-      throw new BadRequestException('User not found with that email' );
+    const {
+      first_name,
+      last_name,
+      age,
+      email,
+      username,
+      password,
+      phoneNumber,
+      role,
+    } = createUserDto;
+    const usemail = await this.userModel.findOne({ email });
+    const usname = await this.userModel.findOne({ username });
+    if (usemail ) {
+      throw new BadRequestException('User has already with that email');
+    }
+    if (usname ) {
+      throw new BadRequestException('User has already with that username');
     }
     const user = await this.userModel.create({
       first_name,
       last_name,
       age,
+      username,
       email,
       password: bcrypt.hashSync(password, 10),
       phoneNumber,
       role,
     });
+    if (role == Role.CUSTOMER) {
+      const customer = await this.customerModel.create({ _id: user._id, user });
+      await this.userModel.findByIdAndUpdate(user, { customer });
+    } else if (role == Role.FREELANCER) {
+      const freelancer = await this.freelancerModel.create({
+        _id: user._id,
+        user,
+      });
+      await this.userModel.findByIdAndUpdate(user, { freelancer });
+    }
+
+    // this.mailService.sendEmail(email, "Register", "good")
+    // this.mailService.sendEmail("aleqsanyan.004@gmail.com", "Forgot password", "good")
+    // this.mailService.sendEmail("aleqsanyan.004@gmail.com", "Is Blocked", "good")
+
+    this.mailService.sendEmail('edohovakimyan555@gmail.com', 'Register', 'good');
     return user;
   }
 
-  async findUserByEmail(username: string) {
-      return await this.userModel.findOne({ username });
-  }
+  async findUserByEmailOrUsername(email: string, username: string) {
+    return await this.userModel.findOne({
+      $or: [
+        { email },
+        { username }
+      ]
+    });
+  }  ////////////////////////mongoyum kamy vonc e ashxatum
 
   async findAll() {
     return await this.userModel.find();
   }
 
-  async findOne(id: number) {
-    return await this.userModel.findOne({  where:{id} });
+  async findOne(id: string) {
+    return await this.userModel.findOne({ where: { id } });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const updatedUser = await this.userModel.findOne({ where: { id } });
 
     if (!updatedUser) {
@@ -56,21 +96,31 @@ export class UserService {
     return await this.userModel.findByIdAndUpdate(updateUserDto);
   }
 
-  async updateImage(id: number, updateUserImgDto: UpdateUserImgDto) {
-    const updatedUser = await this.userModel.findOne({ where: { id } });
-
+  async updateImage(id: string, newImage: string) {
+    const updatedUser = await this.userModel.findById(id);
     if (!updatedUser) {
       throw new BadRequestException('User not found');
     }
-
-    if (updatedUser.image) {
-      const filePath = path.join(__dirname, '..', 'uploads', updatedUser.image);
-        await fs.unlink(filePath);
+    if (updatedUser.image && updatedUser.image != 'user.png') {
+      console.log(__dirname, updatedUser.image);
+      const filePath = path.join(
+        __dirname,
+        '..',
+        '..',
+        'uploads',
+        updatedUser.image,
+      );
+      console.log(__dirname, filePath);
+      fs.unlinkSync(filePath);
     }
-    return await this.userModel.findByIdAndUpdate(updateUserImgDto);
+    await this.userModel.findByIdAndUpdate(id, { image: newImage });
+    return await this.userModel.findById(id);
   }
 
-  async updatePassword(id: number, updateUserPasswordDto: UpdateUserPasswordDto) {
+  async updatePassword(
+    id: string,
+    updateUserPasswordDto: UpdateUserPasswordDto,
+  ) {
     const { oldPassword, password, confirmPassword } = updateUserPasswordDto;
 
     if (!oldPassword || !password || !confirmPassword) {
@@ -89,7 +139,9 @@ export class UserService {
     }
 
     if (password !== confirmPassword) {
-      throw new BadRequestException('New password and confirmation do not match!');
+      throw new BadRequestException(
+        'New password and confirmation do not match!',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -100,9 +152,7 @@ export class UserService {
     return { message: 'Password updated successfully', user };
   }
 
-
-
-  async remove(id: number) {
+  async remove(id: string) {
     const us = await this.userModel.findById({ where: { id } });
     if (!us) {
       return false;

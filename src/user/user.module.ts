@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './entities/user.entity';
 import { CustomerSchema } from 'src/customer/entities/customer.entity';
 import { FreelancerSchema } from 'src/freelancer/entities/freelancer.entity';
+import { MailModule } from 'src/mail/mail.module';
 
 
 @Module({
@@ -12,7 +13,9 @@ import { FreelancerSchema } from 'src/freelancer/entities/freelancer.entity';
     {name:"User", schema:UserSchema},
     {name:"Customer", schema:CustomerSchema},
     {name:"Freelancer", schema:FreelancerSchema}
-  ])],
+  ]),
+  MailModule
+],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],

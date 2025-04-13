@@ -16,6 +16,7 @@ export class UpdateUserDto {
   @JoiSchema(Joi.string())
   phone: string;
 }
+
 export class UpdateUserPasswordDto {
   @ApiProperty()
   @JoiSchema(Joi.string().min(8))
@@ -28,9 +29,4 @@ export class UpdateUserPasswordDto {
   @ApiProperty()
   @JoiSchema(Joi.string().min(8))
   confirmPassword: string;
-}
-export class UpdateUserImgDto {
-  @ApiProperty()
-  @JoiSchema(Joi.string().uri())
-  image: string;
 }

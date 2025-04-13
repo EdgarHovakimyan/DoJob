@@ -312,7 +312,7 @@ export class JobService {
       }
     }
     return {
-      message: 'Job is blockid',
+      message: 'Job is blocked',
     };
     //mailin namak vor blokvel a
   }

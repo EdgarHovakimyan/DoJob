@@ -18,27 +18,33 @@ import { Role } from 'src/user/role/user.enum';
 import { RolesGuard } from './roles.guard';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
-import { MailService } from 'src/mail/mail.service';
 import { LoginUser } from 'src/user/dto/login-user.dto';
+import { MailService } from 'src/mail/mail.service';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private usersService: UserService,
+    private readonly usersService: UserService,
     private readonly mailService: MailService
-  ) { }
+  ) {}
 
+  // await this.mailService.sendMail(
+  //   'receiver@example.com',
+  //   'Բարի գալուստ',
+  //   'Դուք հաջողությամբ գրանցվեցիք!',
+  //   '<b>Բարի գալուստ մեր հարթակ</b>',
+  // );
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @ApiBearerAuth('JWT-auth')
-  @Post()
+  
+  @Post('register')
   async create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     try {
       const data = await this.usersService.create(createUserDto);
-      return res.status(HttpStatus.CREATED).json(data)
+      return res.status(HttpStatus.CREATED).json(data);
     } catch (e) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message });
     }
   }
 
@@ -48,9 +54,9 @@ export class AuthController {
   async login(@Request() req, @Body() login: LoginUser, @Res() res: Response) {
     try {
       const data = await this.authService.login(req.user);
-      return res.status(HttpStatus.OK).json(data)
+      return res.status(HttpStatus.OK).json(data);
     } catch (e) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message });
     }
   }
 
@@ -59,10 +65,10 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req, @Res() res: Response) {
     try {
-      const data = req.user
-      return res.status(HttpStatus.CREATED).json(data)
+      const data = req.user;
+      return res.status(HttpStatus.CREATED).json(data);
     } catch (e) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message });
     }
   }
 
@@ -72,36 +78,34 @@ export class AuthController {
   @Get('admin')
   onlyAdmin(@Request() req, @Res() res: Response) {
     try {
-      const data = req.user
-      return res.status(HttpStatus.CREATED).json(data)
+      const data = req.user;
+      return res.status(HttpStatus.CREATED).json(data);
     } catch (e) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message });
     }
   }
-
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @Get('teacher')
-  onlyTeacher(@Request() req, @Res() res: Response) {
+  onlyFreelancer(@Request() req, @Res() res: Response) {
     try {
-      const data = req.user
-      return res.status(HttpStatus.CREATED).json(data)
+      const data = req.user;
+      return res.status(HttpStatus.CREATED).json(data);
     } catch (e) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message });
     }
   }
-
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
   @Get('student')
-  onlyStudent(@Request() req, @Res() res: Response) {
+  onlyCustomer(@Request() req, @Res() res: Response) {
     try {
-      const data = req.user
-      return res.status(HttpStatus.CREATED).json(data)
+      const data = req.user;
+      return res.status(HttpStatus.CREATED).json(data);
     } catch (e) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message })
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: e.message });
     }
   }
 }
