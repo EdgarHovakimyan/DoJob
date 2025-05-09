@@ -6,6 +6,7 @@ import { SkillsSchema } from 'src/skills/entities/skill.entity';
 import { FreelancerSchema } from 'src/freelancer/entities/freelancer.entity';
 import { CustomerSchema } from 'src/customer/entities/customer.entity';
 import { JobSchema } from './entities/job.entity';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   controllers: [JobController],
@@ -15,6 +16,7 @@ import { JobSchema } from './entities/job.entity';
     { name: "Customer", schema: CustomerSchema },
     { name: "Skills", schema: SkillsSchema },
     { name: "Freelancer", schema: FreelancerSchema }
-  ])],
+  ]),
+  MailModule],
 })
 export class JobModule { }

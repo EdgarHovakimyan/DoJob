@@ -5,27 +5,35 @@ export class CreateUserDto {
   @ApiProperty()
   @JoiSchema(Joi.string().required())
   first_name: string;
+  
   @ApiProperty()
   @JoiSchema(Joi.string().required())
   last_name:string
+  
   @ApiProperty()
-  @JoiSchema(Joi.string().required())
+  @JoiSchema(Joi.string().email().required())
   email: string;
+  
   @ApiProperty()
   @JoiSchema(Joi.string().required())
   username: string;
+  
   @ApiProperty()
   @JoiSchema(Joi.string().required())
   password:string
+  
   @ApiProperty()
   @JoiSchema(Joi.string().required())
   confirm_password:string
+  
   @ApiProperty()
   @JoiSchema(Joi.number().integer().min(18).required())
   age: number;
+  
   @ApiProperty()
-  @JoiSchema(Joi.number().integer().min(0).max(2).required())
+  @JoiSchema(Joi.number().integer().min(0).max(1).required())
   role: number;
+  
   @ApiProperty()
   @JoiSchema(Joi.string().required())
   phoneNumber:string

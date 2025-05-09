@@ -9,35 +9,33 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { HasRoles } from './has-roles.decorator';
 import { Role } from 'src/user/role/user.enum';
 import { RolesGuard } from './roles.guard';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
 import { LoginUser } from 'src/user/dto/login-user.dto';
-import { MailService } from 'src/mail/mail.service';
 
-
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UserService,
-    private readonly mailService: MailService
   ) {}
 
-  // await this.mailService.sendMail(
-  //   'receiver@example.com',
-  //   'Բարի գալուստ',
-  //   'Դուք հաջողությամբ գրանցվեցիք!',
-  //   '<b>Բարի գալուստ մեր հարթակ</b>',
-  // );
-
-  
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully registered' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @Post('register')
   async create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     try {
@@ -48,6 +46,9 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Login user and return access token' })
+  @ApiResponse({ status: 200, description: 'User logged in successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid credentials' })
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('local'))
   @Post('login')
@@ -60,6 +61,9 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Get user profile' })
+  @ApiResponse({ status: 201, description: 'Profile retrieved successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth('JWT-auth')
   @Get('profile')
@@ -72,6 +76,9 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Accessible only by ADMIN' })
+  @ApiResponse({ status: 201, description: 'Admin route accessed' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @HasRoles(Role.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
@@ -85,9 +92,13 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Accessible only by FREELANCER' })
+  @ApiResponse({ status: 201, description: 'Freelancer route accessed' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @HasRoles(Role.FREELANCER)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
-  @Get('teacher')
+  @Get('freelancer')
   onlyFreelancer(@Request() req, @Res() res: Response) {
     try {
       const data = req.user;
@@ -97,9 +108,13 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Accessible only by CUSTOMER' })
+  @ApiResponse({ status: 201, description: 'Customer route accessed' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @HasRoles(Role.CUSTOMER)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('JWT-auth')
-  @Get('student')
+  @Get('customer')
   onlyCustomer(@Request() req, @Res() res: Response) {
     try {
       const data = req.user;

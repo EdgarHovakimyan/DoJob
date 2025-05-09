@@ -7,15 +7,19 @@ export class UpdateJobDto {
   @ApiProperty()
   @JoiSchema(Joi.string())
   title: string;
+  
   @ApiProperty()
   @JoiSchema(Joi.string())
   description: string;
+  
   @ApiProperty()
   @JoiSchema(Joi.date())
   deadline: Date;
+  
   @ApiProperty()
   @JoiSchema(Joi.string())
   freelancerId: string;
+  
   @ApiProperty()
   @JoiSchema(Joi.array().items(Joi.string()))
   skills: string[];
@@ -26,6 +30,7 @@ export class AddSkillDto {
   @JoiSchema(Joi.array().items(Joi.string()))
   skills: string[]; 
 }
+
 export class UpdateJobStatusDto {
   @ApiProperty()
   @JoiSchema(Joi.number().min(0).max(2))
