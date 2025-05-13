@@ -16,7 +16,7 @@ DoJob is an online freelance marketplace similar to UpWork. It connects clients 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/dojob.git
+git clone https://github.com/EdgarHovakimyan/dojob.git
 cd dojob
 ```
 
